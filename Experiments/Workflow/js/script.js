@@ -20,7 +20,8 @@ function preload() {
  * Description of setup
 */
 function setup() {
-
+    createCanvas(450, 450);
+    background(255, 0, 255);
 }
 
 
