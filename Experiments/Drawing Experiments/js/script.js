@@ -1,5 +1,5 @@
 /**
- * Title of Project
+ * Project Title
  * Author Name
  * 
  * This is a template. You must fill in the title, author, 
