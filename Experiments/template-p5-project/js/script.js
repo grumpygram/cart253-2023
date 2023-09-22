@@ -14,26 +14,25 @@ function preload() {
 }
 
 let backgroundShade = 0;
-let circleX = 0;
-let circleY = 250;
-let circleSize = 200;
-let circleSpeed = 2;
-let circleAcceleration = 0.25;
 
+let circle = {
+    x: 0,
+    y: 250,
+    size: 200,
+    speed: 2,
+};
 
 function setup() {
 
-    createCanvas(1000, 500);
+    createCanvas(500, 500);
 
 }
 
-
 function draw() {
 
-    circleX+= circleSpeed;
-    circleSpeed = circleSpeed + circleAcceleration;
+    circle.x += circle.speed;
 
     background(backgroundShade);
-    ellipse(circleX, circleY, circleSize);
+    ellipse(circle.x, circle.y, circle.size);
 
 }
