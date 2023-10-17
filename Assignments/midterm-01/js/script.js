@@ -13,7 +13,7 @@ let cart = {
     y: 500,
     width: 200,
     height: 100,
-    vx: 8,
+    vx: 5,
     fill: {
         r: 255,
         g: 255,
@@ -26,7 +26,20 @@ let background1 = {
     b: 0
 }
 
-let rock = {
+let rock1 = {
+    x: 0,
+    y: 0,
+    size: 80,
+    vx: 2,
+    vy: 2,
+    fill: {
+        r: 255,
+        g: 255,
+        b: 255
+    }
+}
+
+let rock2 = {
     x: 0,
     y: 0,
     size: 80,
@@ -51,10 +64,10 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
 
-    rock.x1 = random(0, width);
-    rock.y1 = random(0, 300);
-    rock.x2 = random(0, width);
-    rock.y2 = random(0, 300);
+    rock1.x = random(0, width);
+    rock1.y = random(0, 300);
+    rock2.x = random(0, width);
+    rock2.y = random(0, 300);
 
 }
 
@@ -73,6 +86,7 @@ function draw() {
 
 }
 
+//TITLE PAGE
 function title() {
     background(background1.r, background1.g, background1.b);
     textSize(74);
@@ -83,40 +97,61 @@ function title() {
     text(`press any key to continue`, width/2, 370);
 }
 
+//MOVING PAGE
 function moving() {
     background(background1.r, background1.g, background1.b);
-    fill(cart.fill.r, cart.fill.g, cart.fill.b);
 
-    rectMode(CENTER);
+    //Cart
+    fill(cart.fill.r, cart.fill.g, cart.fill.b);
     rect(cart.x, cart.y, cart.width, cart.height);
 
-    fill(rock.fill.r, rock.fill.g, rock.fill.b);
-    ellipse(rock.x1, rock.y1, rock.size);
-    ellipse(rock.x2, rock.y2, rock.size);
+    rectMode(CENTER);
+    //Rock 1
+    push();
+    fill(rock1.fill.r, rock1.fill.g, rock1.fill.b);
+    ellipse(rock1.x, rock1.y, rock1.size);
+    pop();
 
-    if (cart.x = rock.x1) {
-        rock.y1 = rock.y1 + rock.vy;
+    //Rock 2
+    push();
+    fill(rock2.fill.r, rock2.fill.g, rock2.fill.b);
+    ellipse(rock2.x, rock2.y, rock2.size);
+    pop();
+
+
+    //Calling the function to make the cart move
+    keyPressed();
+
+    if (cart.x >= rock1.x) {
+        rock1.y = rock1.y + rock1.vy;
     }
 
-    if (rock.y1 === cart.y && rock.x1 > (cart.x + cart.width/2) && rock.x1 (cart.x - cart.width/2)) {
+    if (rock1.y > cart.y && rock.x1 > (cart.x + cart.width/2) && rock.x1 (cart.x - cart.width/2)) {
         state = `gemOrBust`;
     }
-    else if (rock.y2 === cart.y && rock.x2 > (cart.x + cart.width/2) && rock.x2 (cart.x - cart.width/2)) {
+    else if (rock2.y > cart.y && rock.x2 > (cart.x + cart.width/2) && rock.x2 (cart.x - cart.width/2)) {
         state = `gemOrBust`;
     }
 }
 
+    //GEM OR BUST PAGE
 function gemOrBust() {
     fill(255);
     ellipse(width/2, height/2, 300);
 }
 
-function keyPressed(LEFT_ARROW) {
-    cart.x = cart.x + cart.vx;
-}
-
-function mousePressed() {
+function keyPressed() {
+    //From title to moving
     if (state === `title`) {
         state = `moving`;
+    }
+    //Moving the cart
+    if (state === `moving`) {
+        if (keyIsDown(39)) {
+            cart.x = cart.x + cart.vx;
+        }
+        else if (keyIsDown(37)) {
+            cart.x = cart.x - cart.vx;
+        }
     }
 }
