@@ -26,6 +26,12 @@ let background1 = {
     b: 0
 }
 
+let background2 = {
+    r: 100,
+    g: 100,
+    b: 100
+}
+
 let rock1 = {
     x: 0,
     y: 0,
@@ -36,7 +42,8 @@ let rock1 = {
         r: 255,
         g: 255,
         b: 255
-    }
+    },
+    falling: false
 }
 
 let rock2 = {
@@ -49,7 +56,29 @@ let rock2 = {
         r: 255,
         g: 255,
         b: 255
-    }
+    },
+    falling: false
+}
+
+let bigRock = {
+    x: undefined,
+    y: undefined,
+    fill: (255, 255, 255),
+    alpha: setAlpha(255),
+    fade: false,
+    fadeRate: 5,
+    size: 300
+}
+
+let d1;
+let d2;
+let d3;
+
+let geode = {
+    x: undefined,
+    y: undefined,
+    size: 250,
+    contents: undefined,
 }
 
 let state = `title`;
@@ -65,10 +94,17 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
 
     rock1.x = random(0, width);
-    rock1.y = random(0, 300);
+    rock1.y = random(0, height/2);
     rock2.x = random(0, width);
-    rock2.y = random(0, 300);
+    rock2.y = random(0, height/2);
 
+    geode.contents = round(random(0, 1));
+
+    bigRock.x = width/2;
+    bigRock.y = height/2;
+
+    geode.x = width/2;
+    geode.y = height/2;
 }
 
 
@@ -120,24 +156,66 @@ function moving() {
 
 
     //Calling the function to make the cart move
-    keyPressed();
+    cartMove();
 
-    if (cart.x >= rock1.x) {
-        rock1.y = rock1.y + rock1.vy;
-    }
+    //Making the rocks fall
+    d1 = dist(rock1.x, rock1.y, mouseX, mouseY);
+    d2 = dist(rock2.x, rock2.y, mouseX, mouseY);
+    rockFall();
 
-    if (rock1.y > cart.y && rock.x1 > (cart.x + cart.width/2) && rock.x1 (cart.x - cart.width/2)) {
-        state = `gemOrBust`;
-    }
-    else if (rock2.y > cart.y && rock.x2 > (cart.x + cart.width/2) && rock.x2 (cart.x - cart.width/2)) {
-        state = `gemOrBust`;
-    }
+    //Checking if rock fell in cart and moving to GemOrBust
+    if (rock1.x < (cart.x + cart.width/2)) {
+        if (rock1.x > (cart.x - cart.width/2)) {
+            if (cart.y - rock1.y > 0) {
+                if (cart.y - rock1.y < 10) {
+                print(`Rock 1`)
+                rock1.falling = false;
+                state = `gemOrBust`;
+                }
+            }
+        }
+    }      
+    if (rock2.x < (cart.x + cart.width/2)) {
+        if (rock2.x > (cart.x - cart.width/2)) {
+            if (cart.y - rock2.y > 0) {
+                if (cart.y - rock2.y < 10) {
+                print(`Rock 2`)
+                rock2.falling = false;
+                state = `gemOrBust`;
+                }
+            }
+        }
+    }  
 }
 
-    //GEM OR BUST PAGE
+//GEM OR BUST PAGE
 function gemOrBust() {
-    fill(255);
-    ellipse(width/2, height/2, 300);
+    background(background2.r, background2.g, background2.b);
+
+    //Displaying geode and big rock
+    ellipse(geode.x, geode.y, geode.size);
+
+    push();
+    fill(bigRock.fill);
+    ellipse(bigRock.x, bigRock.y, bigRock.size);
+    pop();
+
+    Unearthing();
+
+    //Making clicking on bigRock fade it out
+    d3 = dist(bigRock.x, bigRock.y, mouseX, mouseY);
+
+
+    if (geode.contents === 1) {
+        geode.fill = {
+            r: 255,
+            g: 0,
+            b: 0
+        }
+    }
+    else if (geode.contents === 0) {
+        geode.fill = (255);
+        }
 }
 
 function keyPressed() {
@@ -145,6 +223,9 @@ function keyPressed() {
     if (state === `title`) {
         state = `moving`;
     }
+}
+
+function cartMove() {
     //Moving the cart
     if (state === `moving`) {
         if (keyIsDown(39)) {
@@ -152,6 +233,42 @@ function keyPressed() {
         }
         else if (keyIsDown(37)) {
             cart.x = cart.x - cart.vx;
+        }
+    }
+}
+
+//Makes rocks fall
+function rockFall() {
+    if (rock1.falling === true) {
+        rock1.y = rock1.y + rock1.vy;
+    }
+    if (rock2.falling === true) {
+        rock2.y = rock2.y + rock2.vy;
+    }
+}
+
+//Makes bigRock fade
+function Unearthing() {
+    if (bigRock.fade === true) {
+        bigRock.alpha = bigRock.alpha - bigRock.fadeRate;
+    }
+}
+
+function mousePressed() {
+    //Clicking on rocks makes them fall
+    if (state === `moving`) {
+        if (d1 < rock1.size/2) {
+            rock1.falling = true;
+        }
+        if (d2 < rock2.size/2) {
+            rock2.falling = true;
+        }
+    }
+    //Clicking on bigRock makes it fade away
+    if (state === `gemOrBust`) {
+        if (d3 < bigRock.size/2) {
+            print(`fading...`)
+            bigRock.fade = true;
         }
     }
 }
