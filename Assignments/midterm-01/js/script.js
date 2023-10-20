@@ -60,11 +60,15 @@ let rock2 = {
     falling: false
 }
 
-let bigRockAlpha = 255;
 let bigRock = {
     x: undefined,
     y: undefined,
-    fill: (255, 255, 255, bigRockAlpha),
+    fill: {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255
+        },
     fade: false,
     fadeRate: 5,
     size: 300
@@ -98,7 +102,7 @@ function setup() {
     rock2.x = random(0, width);
     rock2.y = random(0, height/2);
 
-    //geode.contents = round(random(0, 1));
+    geode.contents = round(random(0, 1));
 
     bigRock.x = width/2;
     bigRock.y = height/2;
@@ -118,6 +122,9 @@ function draw() {
     }
     if (state === `gemOrBust`) {
         gemOrBust();
+    }
+    if (state === `processing`) {
+        processing();
     }
 
 }
@@ -192,40 +199,40 @@ function moving() {
 function gemOrBust() {
     background(background2.r, background2.g, background2.b);
 
-    //Displaying geode and big rock
-    /*
-    fill(geode.fill)
+    //Displaying geode and big rock and checking if geode is a gem or slag
+    checkGeode();
+    fill(geode.fill.r, geode.fill.g, geode.fill.b);
     ellipse(geode.x, geode.y, geode.size);
-    */
 
     push();
     noStroke();
-    fill(bigRock.fill);
+    fill(bigRock.fill.r, bigRock.fill.g, bigRock.fill.b, bigRock.fill.a);
     ellipse(bigRock.x, bigRock.y, bigRock.size);
     pop();
 
     //Making clicking on bigRock fade it out
     d3 = dist(bigRock.x, bigRock.y, mouseX, mouseY);
     unearthing();
+}
 
-    /*
-    if (geode.contents === 1) {
-        geode.fill = {
-            r: 255,
-            g: 0,
-            b: 0
-        }
-    }
-    else if (geode.contents === 0) {
-        geode.fill = (255);
-        }
-    */
+//PROCESSING PAGE
+function processing() {
+    background(background1.r, background1.g, background1.b);
+
+    
+
 }
 
 function keyPressed() {
     //From title to moving
     if (state === `title`) {
         state = `moving`;
+    }
+    //From gemOrBust to processing
+    if (state === `gemOrBust`) {
+        if (keyPressed(13)) {
+            state = `processing`
+        }
     }
 }
 
@@ -254,9 +261,27 @@ function rockFall() {
 //Makes bigRock fade
 function unearthing() {
     if (bigRock.fade === true) {
-        bigRockAlpha = bigRockAlpha - bigRock.fadeRate;
+        bigRock.fill.a = bigRock.fill.a - bigRock.fadeRate;
         print(`unearthing...`)
     }
+}
+
+//Checks if geode is a gem or not
+function checkGeode() {
+    if (geode.contents === 1) {
+        geode.fill = {
+            r: 255,
+            g: 0,
+            b: 0
+        };
+    }
+    else if (geode.contents === 0) {
+        geode.fill = {
+            r: 0,
+            g: 255,
+            b: 0
+        };
+        }
 }
 
 function mousePressed() {
@@ -272,7 +297,6 @@ function mousePressed() {
     //Clicking on bigRock makes it fade away
     if (state === `gemOrBust`) {
         if (d3 < bigRock.size/2) {
-            print(`fading...`)
             bigRock.fade = true;
         }
     }
