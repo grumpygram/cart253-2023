@@ -60,11 +60,11 @@ let rock2 = {
     falling: false
 }
 
+let bigRockAlpha = 255;
 let bigRock = {
     x: undefined,
     y: undefined,
-    fill: (255, 255, 255),
-    alpha: setAlpha(255),
+    fill: (255, 255, 255, bigRockAlpha),
     fade: false,
     fadeRate: 5,
     size: 300
@@ -78,7 +78,7 @@ let geode = {
     x: undefined,
     y: undefined,
     size: 250,
-    contents: undefined,
+    contents: undefined
 }
 
 let state = `title`;
@@ -98,7 +98,7 @@ function setup() {
     rock2.x = random(0, width);
     rock2.y = random(0, height/2);
 
-    geode.contents = round(random(0, 1));
+    //geode.contents = round(random(0, 1));
 
     bigRock.x = width/2;
     bigRock.y = height/2;
@@ -193,19 +193,22 @@ function gemOrBust() {
     background(background2.r, background2.g, background2.b);
 
     //Displaying geode and big rock
+    /*
+    fill(geode.fill)
     ellipse(geode.x, geode.y, geode.size);
+    */
 
     push();
+    noStroke();
     fill(bigRock.fill);
     ellipse(bigRock.x, bigRock.y, bigRock.size);
     pop();
 
-    Unearthing();
-
     //Making clicking on bigRock fade it out
     d3 = dist(bigRock.x, bigRock.y, mouseX, mouseY);
+    unearthing();
 
-
+    /*
     if (geode.contents === 1) {
         geode.fill = {
             r: 255,
@@ -216,6 +219,7 @@ function gemOrBust() {
     else if (geode.contents === 0) {
         geode.fill = (255);
         }
+    */
 }
 
 function keyPressed() {
@@ -248,9 +252,10 @@ function rockFall() {
 }
 
 //Makes bigRock fade
-function Unearthing() {
+function unearthing() {
     if (bigRock.fade === true) {
-        bigRock.alpha = bigRock.alpha - bigRock.fadeRate;
+        bigRockAlpha = bigRockAlpha - bigRock.fadeRate;
+        print(`unearthing...`)
     }
 }
 
