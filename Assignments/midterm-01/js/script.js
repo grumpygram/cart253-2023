@@ -41,7 +41,8 @@ let rock1 = {
     fill: {
         r: 255,
         g: 255,
-        b: 255
+        b: 255,
+        a: 255
     },
     falling: false
 }
@@ -55,7 +56,8 @@ let rock2 = {
     fill: {
         r: 255,
         g: 255,
-        b: 255
+        b: 255,
+        a: 255
     },
     falling: false
 }
@@ -126,9 +128,11 @@ function draw() {
     if (state === `gemOrBust`) {
         gemOrBust();
     }
+    /*
     if (state === `processing`) {
         processing();
     }
+    */
 
 }
 
@@ -155,13 +159,14 @@ function moving() {
     rectMode(CENTER);
     //Rock 1
     push();
-    fill(rock1.fill.r, rock1.fill.g, rock1.fill.b);
+    fill(rock1.fill.r, rock1.fill.g, rock1.fill.b, rock1.fill.a);
     ellipse(rock1.x, rock1.y, rock1.size);
     pop();
 
     //Rock 2
     push();
-    fill(rock2.fill.r, rock2.fill.g, rock2.fill.b);
+    stroke(rock1.stroke.r, rock.stroke.g, rock1.stroke.b);
+    fill(rock2.fill.r, rock2.fill.g, rock2.fill.b, rock2.fill.a);
     ellipse(rock2.x, rock2.y, rock2.size);
     pop();
 
@@ -178,10 +183,14 @@ function moving() {
     if (rock1.x < (cart.x + cart.width/2)) {
         if (rock1.x > (cart.x - cart.width/2)) {
             if (cart.y - rock1.y > 0) {
-                if (cart.y - rock1.y < 10) {
+                if (cart.y - rock1.y < 2) {
                 print(`Rock 1`)
-                rock1.falling = false;
+                //rock1.falling = false;
                 state = `gemOrBust`;
+                push();
+                noStroke();
+                rock1.fill.a = 50;
+                pop();
                 }
             }
         }
@@ -189,14 +198,20 @@ function moving() {
     if (rock2.x < (cart.x + cart.width/2)) {
         if (rock2.x > (cart.x - cart.width/2)) {
             if (cart.y - rock2.y > 0) {
-                if (cart.y - rock2.y < 10) {
+                if (cart.y - rock2.y < 2) {
                 print(`Rock 2`)
-                rock2.falling = false;
+                //rock2.falling = false;
                 state = `gemOrBust`;
+                push();
+                
+                rock2.fill.a = 50;
+                pop();
                 }
             }
         }
     }  
+
+    //Sending 
 }
 
 //GEM OR BUST PAGE
@@ -219,6 +234,7 @@ function gemOrBust() {
     unearthing();
 }
 
+/*
 //PROCESSING PAGE
 function processing() {
     background(background1.r, background1.g, background1.b);
@@ -226,6 +242,7 @@ function processing() {
     //    
 
 }
+*/
 
 function keyPressed() {
     //From title to moving
@@ -235,7 +252,8 @@ function keyPressed() {
     //From gemOrBust to processing
     if (state === `gemOrBust`) {
         if (13) {
-            state = `processing`
+            print(`Pressed enter`);
+            state = `moving`;
         }
     }
 }
