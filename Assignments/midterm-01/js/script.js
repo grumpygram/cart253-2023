@@ -78,6 +78,8 @@ let d1;
 let d2;
 let d3;
 
+let cave;
+
 let geode = {
     x: undefined,
     y: undefined,
@@ -89,6 +91,7 @@ let state = `title`;
 
 //PRELOAD
 function preload() {
+    cave = loadImage("assets/images/cave_background3.png");
 
 }
 
@@ -143,6 +146,7 @@ function title() {
 //MOVING PAGE
 function moving() {
     background(background1.r, background1.g, background1.b);
+    image(cave, 0, 0, 1000, 600);
 
     //Cart
     fill(cart.fill.r, cart.fill.g, cart.fill.b);
@@ -219,7 +223,7 @@ function gemOrBust() {
 function processing() {
     background(background1.r, background1.g, background1.b);
 
-    
+    //    
 
 }
 
@@ -230,7 +234,7 @@ function keyPressed() {
     }
     //From gemOrBust to processing
     if (state === `gemOrBust`) {
-        if (keyPressed(13)) {
+        if (13) {
             state = `processing`
         }
     }
