@@ -15,21 +15,21 @@ let cart = {
     height: 100,
     vx: 5,
     fill: {
-        r: 255,
-        g: 255,
-        b: 255
+        r: 50,
+        g: 30,
+        b: 3
     }
 }
 let background1 = {
-    r: 0,
-    g: 0,
+    r: 30,
+    g: 10,
     b: 0
 }
 
 let background2 = {
-    r: 100,
-    g: 100,
-    b: 100
+    r: 80,
+    g: 50,
+    b: 10
 }
 
 let rock1 = {
@@ -39,10 +39,16 @@ let rock1 = {
     vx: 2,
     vy: 2,
     fill: {
-        r: 255,
-        g: 255,
-        b: 255,
+        r: 100,
+        g: 100,
+        b: 100,
         a: 255
+    },
+    stroke: {
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 255,
     },
     falling: false
 }
@@ -54,10 +60,16 @@ let rock2 = {
     vx: 2,
     vy: 2,
     fill: {
-        r: 255,
-        g: 255,
-        b: 255,
+        r: 100,
+        g: 100,
+        b: 100,
         a: 255
+    },
+    stroke: {
+        r: 50,
+        g: 50,
+        b: 50,
+        a: 255,
     },
     falling: false
 }
@@ -66,9 +78,9 @@ let bigRock = {
     x: undefined,
     y: undefined,
     fill: {
-        r: 255,
-        g: 255,
-        b: 255,
+        r: 105,
+        g: 105,
+        b: 105,
         a: 255
         },
     fade: false,
@@ -81,6 +93,8 @@ let d2;
 let d3;
 
 let cave;
+let choc;
+let jewel;
 
 let geode = {
     x: undefined,
@@ -95,25 +109,28 @@ let state = `title`;
 function preload() {
     cave = loadImage("assets/images/cave_background3.png");
 
+    choc = loadFont("assets/fonts/choc.ttf");
+    jewel = loadFont("assets/fonts/ScalaJewelSaphyr.otf");
+
 }
 
 
 //SETUP
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(1000, 600);
 
-    rock1.x = random(0, width);
-    rock1.y = random(0, height/2);
-    rock2.x = random(0, width);
-    rock2.y = random(0, height/2);
+    rock1.x = random(0, 1000);
+    rock1.y = random(0, 600/2);
+    rock2.x = random(0, 1000);
+    rock2.y = random(0, 600/2);
 
     geode.contents = round(random(0, 1));
 
-    bigRock.x = width/2;
-    bigRock.y = height/2;
+    bigRock.x = 1000/2;
+    bigRock.y = 600/2;
 
-    geode.x = width/2;
-    geode.y = height/2;
+    geode.x = 1000/2;
+    geode.y = 600/2;
 }
 
 
@@ -128,12 +145,6 @@ function draw() {
     if (state === `gemOrBust`) {
         gemOrBust();
     }
-    /*
-    if (state === `processing`) {
-        processing();
-    }
-    */
-
 }
 
 //TITLE PAGE
@@ -142,9 +153,10 @@ function title() {
     textSize(74);
     fill(255, 100, 100);
     textAlign(CENTER, CENTER);
-    text(`GEM MINING`, width/2, 300);
+    textFont(choc);
+    text(`GEM MINING`, 1000/2, 300);
     textSize(50);
-    text(`press any key to continue`, width/2, 370);
+    text(`press any key to continue`, 1000/2, 370);
 }
 
 //MOVING PAGE
@@ -152,23 +164,26 @@ function moving() {
     background(background1.r, background1.g, background1.b);
     image(cave, 0, 0, 1000, 600);
 
-    //Cart
-    fill(cart.fill.r, cart.fill.g, cart.fill.b);
-    rect(cart.x, cart.y, cart.width, cart.height);
-
     rectMode(CENTER);
     //Rock 1
     push();
+    strokeWeight(5);
+    stroke(rock1.stroke.r, rock1.stroke.g, rock1.stroke.b, rock1.stroke.a);
     fill(rock1.fill.r, rock1.fill.g, rock1.fill.b, rock1.fill.a);
     ellipse(rock1.x, rock1.y, rock1.size);
     pop();
 
     //Rock 2
     push();
-    stroke(rock1.stroke.r, rock.stroke.g, rock1.stroke.b);
+    strokeWeight(5);
+    stroke(rock2.stroke.r, rock2.stroke.g, rock2.stroke.b, rock2.stroke.a);
     fill(rock2.fill.r, rock2.fill.g, rock2.fill.b, rock2.fill.a);
     ellipse(rock2.x, rock2.y, rock2.size);
     pop();
+
+    //Cart
+    fill(cart.fill.r, cart.fill.g, cart.fill.b);
+    rect(cart.x, cart.y, cart.width, cart.height);
 
 
     //Calling the function to make the cart move
@@ -189,7 +204,8 @@ function moving() {
                 state = `gemOrBust`;
                 push();
                 noStroke();
-                rock1.fill.a = 50;
+                rock1.stroke.a = 0;
+                rock1.fill.a = 0;
                 pop();
                 }
             }
@@ -203,8 +219,8 @@ function moving() {
                 //rock2.falling = false;
                 state = `gemOrBust`;
                 push();
-                
-                rock2.fill.a = 50;
+                rock2.stroke.a = 0;
+                rock2.fill.a = 0;
                 pop();
                 }
             }
@@ -217,6 +233,14 @@ function moving() {
 //GEM OR BUST PAGE
 function gemOrBust() {
     background(background2.r, background2.g, background2.b);
+
+    rectMode(CORNER);
+    noStroke();
+    fill(60, 40, 10)
+    rect(0, 0, 1000, 85);
+    rect(0, 515, 1000, 85);
+    rect(0, 0, 100, 600);
+    rect(900, 0, 100, 600);
 
     //Displaying geode and big rock and checking if geode is a gem or slag
     checkGeode();
@@ -234,24 +258,14 @@ function gemOrBust() {
     unearthing();
 }
 
-/*
-//PROCESSING PAGE
-function processing() {
-    background(background1.r, background1.g, background1.b);
-
-    //    
-
-}
-*/
-
 function keyPressed() {
     //From title to moving
     if (state === `title`) {
         state = `moving`;
     }
-    //From gemOrBust to processing
+    //From gemOrBust to moving
     if (state === `gemOrBust`) {
-        if (13) {
+        if (keyCode === ENTER) {
             print(`Pressed enter`);
             state = `moving`;
         }
@@ -284,7 +298,22 @@ function rockFall() {
 function unearthing() {
     if (bigRock.fade === true) {
         bigRock.fill.a = bigRock.fill.a - bigRock.fadeRate;
-        print(`unearthing...`)
+        print(`unearthing...`);
+        textSize(30);
+        textFont(jewel);
+        textAlign(CENTER);
+        fill(255, 105, 180);
+        text(`Press enter to continue`, 1000/2, 540);
+        if (geode.contents === 1) {
+            textSize(70);
+            textFont(jewel);
+            text(`You Got A Gem!`, 1000/2, 480);
+        }
+        else if (geode.contents === 0) {
+            textSize(70);
+            textFont(jewel);
+            text(`Just Slag... Try Again`, 1000/2, 480);
+        }
     }
 }
 
@@ -299,9 +328,9 @@ function checkGeode() {
     }
     else if (geode.contents === 0) {
         geode.fill = {
-            r: 0,
-            g: 255,
-            b: 0
+            r: 110,
+            g: 110,
+            b: 110
         };
         }
 }
