@@ -7,33 +7,37 @@
 
 "use strict";
 
-let oscillator;
-let t = 0;
+//The Balls
+let balls = [];
 
+//The Notes
+let notes = [`F3`, `G3`, `Ab4`, `Bb4`, `C4`, `Db4`, `Eb4`, `F4`];
+
+//Create the canvas
 function setup() {
-    createCanvas(600, 600);
-    userStartAudio();
+createCanvas(600, 600);
 
-    oscillator = new p5.Oscillator(440, `sine`);
-    oscillator.amp(0.2);
+userStartAudio();
 }
 
 function draw() {
     background(0);
 
-    let noiseValue = noise(t);
-    let newFreq = map(noiseValue, 0, 1, 40, 2000);
-
-    oscillator.freq(newFreq);
-    t = t + 0.05;
+    for (let i = 0; i < balls.length; i++) {
+        let ball = balls[i];
+        ball.move();
+        ball.bounce();
+        ball.display();
+    }
 }
 
 function mousePressed() {
-    oscillator.start();
-    
+    createBall(mouseX, mouseY);
 }
 
-function mouseReleased() {
-    oscillator.stop();
+function createBall(x, y) {
+    let note = random(notes);
+    let ball = new Ball(x, y, note);
 
+    balls.push(ball);
 }
