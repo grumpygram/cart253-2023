@@ -1,25 +1,10 @@
 class Musician {
 
-    constructor (x, y, note) {
+    constructor (x, y, size) {
         this.x = x;
         this.y = y;
-        this.size = 100;
-        this.fill = musicianFill;
-
-    //synth
-    this.note = note;
-    this.vel = vel;
-    this.dur = dur;
-    this.synth = new p5.PolySynth();
-    }
-
-    move() {
-        x = mouseX;
-        y = mouseY;
-    }
-    
-    playNote() {
-        this.synth.play(this.note, this.vel, 0, this.dur);
+        this.size = size;
+        this.fill = 255;
     }
 
     display() {

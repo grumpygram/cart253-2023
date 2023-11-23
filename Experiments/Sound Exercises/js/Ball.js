@@ -62,8 +62,4 @@ class Ball {
         ellipse(this.x, this.y, this.size);
         pop()
     }
-
-    deleteBall() {
-        
-    }
 }

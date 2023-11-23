@@ -8,32 +8,32 @@
 
 "use strict";
 
-//The musicians
-let musicians = [8];
+let musicians = [];
 
-let x = 50;
-let y = 50;
-
-//The notes
-let notes = [`F3`, `G3`, `Ab4`, `Bb4`, `C4`, `Db4`, `Eb4`, `F4`];
+let circle = {
+    x: 50,
+    y: 50,
+    size: 75,
+    numMusicians: 8
+}
 
 function setup() {
     createCanvas(600, 600);
 
-    userStartAudio();
-}
+    let x = circle.x;
+    let y = circle.y;
+    let size = circle.size;
 
+    let musician = new Musician(x, y, size);
+    musician.push(musicians);
+}
 
 function draw() {
     background(0);
 
-    for (i = 0; i < musicians.length; i++) {
+    for (let i = 0; i < circle.numMusicians; i++) {
         let musician = musicians[i];
-        x = x + 50;
-        y = y+ 50;
-        musician.move();
-        musician.playNote();
-        musician.display(); 
+        musician.display();
     }
 
 }
