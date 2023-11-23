@@ -8,32 +8,79 @@
 
 "use strict";
 
+//Array of musicians
 let musicians = [];
 
+//Array of slots
+let openings = [];
+
+//Array of notes
+let notes = [`F3`, `G3`, `Ab4`, `Bb4`, `C4`, `Db4`, `Eb4`, `F4`];
+
+//Variables for my musicians
 let circle = {
     x: 50,
     y: 50,
-    size: 75,
+    size: 65,
     numMusicians: 8
 }
 
+//Variables for slots
+let slot = {
+    x: 550,
+    y: 50,
+    size: 68,
+    numSlots: 8
+}
+
+//SETUP
 function setup() {
     createCanvas(600, 600);
 
-    let x = circle.x;
-    let y = circle.y;
-    let size = circle.size;
+    userStartAudio();
 
-    let musician = new Musician(x, y, size);
-    musician.push(musicians);
+//Adding players and giving a new y each time
+    for (let i = 0; i < circle.numMusicians; i++) {
+        musicians.push(new Player(circle.x, circle.y, circle.size));
+        circle.y = circle.y + 50;
+    }
+
+//Adding slots and giving a new y each time
+    for (let i = 0; i < slot.numSlots; i++) {
+        openings.push(new Slot(slot.x, slot.y, slot.size));
+        slot.y = slot.y + 70;
+    }
+
+//Assigning a sequential note to each player entity
+    for (let i = 0; i < musicians.length; i++) {
+        for (let j = 0; j < notes.length; j++) {
+            if (j = notes.length) {
+                musicians[i].note = notes[j];
+            }
+        }
+    }
 }
 
+//DRAW
 function draw() {
     background(0);
 
-    for (let i = 0; i < circle.numMusicians; i++) {
-        let musician = musicians[i];
-        musician.display();
+//Displaying player objects
+    for (let i = 0; i < musicians.length; i++) {
+        let player = musicians[i];
+        player.display();
+    }
+    for (let i = 0; i < musicians.length; i++) {
+        let slot = openings[i];
+        slot.display();
+    }
+}
+
+function mouseDragged() {
+    for (let i = 0; i < musicians.length; i++) {
+        let player = musicians[i];
+        player.move();
     }
 
+    
 }
