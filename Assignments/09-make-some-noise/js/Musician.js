@@ -13,7 +13,9 @@ class Player {
 
         this.synth = new p5.PolySynth();
         this.note;
-        this.playNote = false;
+        this.playNote = true;
+        this.inSlot = false;
+        this.isPressed = false;
     }
 
     display() {

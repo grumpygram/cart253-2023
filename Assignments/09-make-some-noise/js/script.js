@@ -53,11 +53,14 @@ function setup() {
 
 //Assigning a sequential note to each player entity
     for (let i = 0; i < musicians.length; i++) {
-        for (let j = 0; j < notes.length; j++) {
-            if (j = notes.length) {
-                musicians[i].note = notes[j];
-            }
+        if (i<notes.length) {
+            musicians[i].note = notes[i]
         }
+        else {
+            let j = i%notes.length
+            musicians[i].note = notes[j]
+        }
+
     }
 }
 
@@ -79,37 +82,48 @@ function draw() {
 
 //Making the players snap to the border of the slot
     for (let i = 0; i < musicians.length; i++) {
-        for (let j = 0; j < notes.length; j++) {
+        for (let j=0;j<notes.length;j++){
             let player = musicians[i]
             let slot = openings[j]
-
+    
             let d2 = dist(player.x, player.y, slot.x, slot.y);
-
+    
             if (d2 < circle2.size/2) {
-                player.x = slot.x;
-                player.y = slot.y;
+                player.inSlot = true;
+                if (player.inSlot) {
+                    player.x = slot.x;
+                    player.y = slot.y;
+                }
+            }
+    
+            if (player.x === slot.x && player.y === slot.y) {
+                playMusic(player)
             }
 
-            if (player.x === slot.x && player.y === slot.y) {
-                playMusic()
-            }
         }
+
     }
+ 
 
 }
+
+
 
 //Moving the players
 function mouseDragged() {
     for (let i = 0; i < musicians.length; i++) {
         let player = musicians[i];
-        player.move();
+        player.move()
+        if (player.inSlot) {
+            player.x=mouseX;
+            player.y=mouseY;
+            player.inSlot = false;
+        }
+        
     }
 }
 
-function playMusic() {
-for (let i = 0; i < musicians.length; i++) {
-    let player = musicians[i;
-        player.playNote = true;
-        player.play();
-    }
+function playMusic(player) {
+   player.playNote = true;
+   player.play()
 }
