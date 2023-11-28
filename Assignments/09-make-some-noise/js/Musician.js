@@ -29,6 +29,7 @@ class Player {
     move() {
         let d1 = dist(this.x, this.y, mouseX, mouseY);
         if (d1 < this.size/2) {
+            this.isPressed = true;
             this.x = mouseX;
             this.y = mouseY;
         }
