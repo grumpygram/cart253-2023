@@ -78,7 +78,8 @@ let isCatchable = false;
 
 //Setup
 function setup() {
-    createCanvas(700, 700);
+    createCanvas(700, 700); //Football field would be around 700 x 370 px
+    //Also, 22 players per football team
 
 }
 
@@ -139,6 +140,7 @@ function checkPower() {
 
 //Angle function
 function angle() {
+
     //Making the angle change and bounce
     angleArrow.angle = angleArrow.angle + angleArrow.angleChange;
 
@@ -231,18 +233,17 @@ function chuck() {
     }
 }
 
-function keyPressed() {
-    isThrown = true;
-}
-
 //MousePressed
-function mouseClicked() {
+function mousePressed() {
     if (state === `powerSelector`) {
         checkPower()
-        state = `angleSelector`
+        state = `angleSelector`;
+        return;
     }
     if (state === `angleSelector`) {
         checkAngle()
+        isThrown = true;
         state = `chuckin'`
+        return;
     }
 }
