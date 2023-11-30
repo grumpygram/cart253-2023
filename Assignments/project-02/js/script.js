@@ -7,10 +7,10 @@
 
 "use strict";
 
-let state = `chuckin'`;
+let state = `powerSelector`;
 
 //Power stuff
-let powerValue = 200;
+let powerValue;
 let powerBar = {
     x: 600,
     y: 150,
@@ -27,7 +27,7 @@ let powerBar = {
 }
 
 //Angle stuff
-let angleValue = 220;
+let angleValue;
 let angleArrow = {
     centerX: 600,
     centerY: 350,
@@ -194,8 +194,8 @@ function chuck() {
         ball.vx = ball.speed * cos(radians(angleValue));
         ball.vy = ball.speed * sin(radians(angleValue));
 
-        let ballEndPointX = ball.startX + powerValue * cos(radians(angleValue));
-        let ballEndPointY = ball.startY + powerValue * sin(radians(angleValue));
+        let ballEndPointX = ball.startX + powerBar.height * cos(radians(angleValue));
+        let ballEndPointY = ball.startY + powerBar.height * sin(radians(angleValue));
 
         if (ball.x <= ballEndPointX) {
             ball.vx = 0;
@@ -243,5 +243,6 @@ function mouseClicked() {
     }
     if (state === `angleSelector`) {
         checkAngle()
+        state = `chuckin'`
     }
 }
