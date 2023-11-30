@@ -7,10 +7,10 @@
 
 "use strict";
 
-let state = `powerSelector`;
+let state = `chuckin'`;
 
 //Power stuff
-let powerValue;
+let powerValue = 200;
 let powerBar = {
     x: 600,
     y: 150,
@@ -27,11 +27,10 @@ let powerBar = {
 }
 
 //Angle stuff
-let angleValue;
-
+let angleValue = 220;
 let angleArrow = {
     centerX: 600,
-    centerY: 400,
+    centerY: 350,
     length: 200,
     angle: 180,
     angleChange: 1,
@@ -44,6 +43,38 @@ let angleArrow = {
     maxAngle: 230,
     minAngle: 130
 }
+
+//Ball stuff
+let ball = {
+    startX: 600,
+    startY: 350,
+    x: 600,
+    y: 350,
+    vx: 0,
+    vy: 0,
+    speed: 5,
+    fill: {
+        r: 255,
+        g: 150,
+        b: 0
+    },
+    size: {
+        w: 12,
+        h: 6
+    },
+    growthX: 0,
+    growthY: 0,
+    catchingSize: {
+        w: 20,
+        h: 10
+    },
+    minSize: {
+        w: 10, 
+        h: 5
+    }
+}
+let isThrown = false;
+let isCatchable = false;
 
 //Setup
 function setup() {
@@ -60,6 +91,9 @@ function draw() {
     }
     if (state === `angleSelector`) {
         angle();
+    }
+    if (state === `chuckin'`) {
+        chuck();
     }
 }
 
@@ -103,17 +137,6 @@ function checkPower() {
     console.log(powerValue);
 }
 
-//MousePressed
-function mouseClicked() {
-    if (state === `powerSelector`) {
-        checkPower()
-        state = `angleSelector`
-    }
-    if (state === `angleSelector`) {
-        checkAngle()
-    }
-}
-
 //Angle function
 function angle() {
     //Making the angle change and bounce
@@ -148,5 +171,77 @@ function angle() {
 function checkAngle() {
     angleArrow.angleChange = 0;
     angleValue = angleArrow.angle;
-    console.log(angleArrow.angle);
+    console.log(angleValue);
+}
+
+//Throwing function
+function chuck() {
+
+    //Displaying the ball
+    push();
+    stroke(0);
+    fill(ball.fill.r, ball.fill.g, ball.fill.b);
+    ellipse(ball.x, ball.y, ball.size.w, ball.size.h);
+    pop();
+    
+
+    //Manipulating the ball
+    if (isThrown) {
+        //Giving the ball its trajectory, angle, and endpoint
+        ball.x += ball.vx
+        ball.y += ball.vy
+
+        ball.vx = ball.speed * cos(radians(angleValue));
+        ball.vy = ball.speed * sin(radians(angleValue));
+
+        let ballEndPointX = ball.startX + powerValue * cos(radians(angleValue));
+        let ballEndPointY = ball.startY + powerValue * sin(radians(angleValue));
+
+        if (ball.x <= ballEndPointX) {
+            ball.vx = 0;
+            ball.vy = 0;
+        }
+
+        ball.size.w += ball.growthX;
+        ball.size.h += ball.growthY;
+
+        let d1 = dist(ball.startX, ball.startY, ballEndPointX, ballEndPointY)
+        let d2 = dist(ball.x, ball.y, ball.startX, ball.startY)
+
+        //Changing the ball's size
+        if (d2 < d1/2) {
+            ball.growthX = 0.6;
+            ball.growthY = 0.3;
+        }
+        if (d2 > d1/2) {
+            ball.growthX = -0.6;
+            ball.growthY = -0.3;
+        }
+
+        if (ball.size.w <= ball.catchingSize.w && ball.size.w > ball.minSize.w) {
+            isCatchable = true;
+            console.log(`catchable`);
+        }
+
+        if (ball.size.w < ball.minSize.w) {
+            ball.growthX = 0;
+            ball.growthY = 0;
+            isCatchable = false;
+        }
+    }
+}
+
+function keyPressed() {
+    isThrown = true;
+}
+
+//MousePressed
+function mouseClicked() {
+    if (state === `powerSelector`) {
+        checkPower()
+        state = `angleSelector`
+    }
+    if (state === `angleSelector`) {
+        checkAngle()
+    }
 }
