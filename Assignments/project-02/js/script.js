@@ -9,6 +9,15 @@
 
 let state = `powerSelector`;
 
+let fieldOfPlay = {
+    x: 350,
+    y: 350,
+    size: {
+        w: 650, 
+        h: 370
+    }
+}
+
 //Power stuff
 let powerValue;
 let powerBar = {
@@ -52,7 +61,7 @@ let ball = {
     y: 350,
     vx: 0,
     vy: 0,
-    speed: 5,
+    speed: 3,
     fill: {
         r: 255,
         g: 150,
@@ -76,16 +85,60 @@ let ball = {
 let isThrown = false;
 let isCatchable = false;
 
+//The teammates
+let team = [];
+let teamRules = {
+    numPlayers: 11,
+    x: 520,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    speed: 0
+}
+let teamCaught = false;
+
+//The other team
+let opponents = [];
+let opponentRules = {
+    numPlayers: 11,
+    x: 510,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    speed: 0
+}
+let opponentCaught = false;
+
 //Setup
 function setup() {
     createCanvas(700, 700); //Football field would be around 700 x 370 px
     //Also, 22 players per football team
 
+    for (let i = 0; i < teamRules.numPlayers; i++) {
+        teamRules.y = random(165, 535);
+        teamRules.vx = random(-0.5, -2);
+        teamRules.vy = random(-0.5, 0.5);
+        team.push(new Teammate(teamRules.x, teamRules.y, teamRules.vx, teamRules.vy))
+    }
+    for (let i = 0; i < opponentRules.numPlayers; i++) {
+        opponentRules.y = random(165, 535);
+        opponentRules.vx = random(-0.5, -2);
+        opponentRules.vy = random(-0.5, 0.5);
+        opponents.push(new Opponent(opponentRules.x, opponentRules.y, opponentRules.vx, opponentRules.vy))
+    }
 }
 
 
 function draw() {
     background(0, 200, 0);
+
+    push();
+    rectMode(CENTER);
+    noFill();
+    stroke(255);
+    strokeWeight(2);
+    rect(fieldOfPlay.x, fieldOfPlay.y, fieldOfPlay.size.w, fieldOfPlay.size.h);
+    pop();
 
     if (state === `powerSelector`) {
         power();
@@ -95,6 +148,8 @@ function draw() {
     }
     if (state === `chuckin'`) {
         chuck();
+        goodGuys();
+        badGuys();
     }
 }
 
@@ -185,7 +240,6 @@ function chuck() {
     fill(ball.fill.r, ball.fill.g, ball.fill.b);
     ellipse(ball.x, ball.y, ball.size.w, ball.size.h);
     pop();
-    
 
     //Manipulating the ball
     if (isThrown) {
@@ -220,15 +274,60 @@ function chuck() {
             ball.growthY = -0.3;
         }
 
+        //Defining when the ball is catchable
         if (ball.size.w <= ball.catchingSize.w && ball.size.w > ball.minSize.w) {
             isCatchable = true;
-            console.log(`catchable`);
+        }
+        else {
+            isCatchable = false;
         }
 
         if (ball.size.w < ball.minSize.w) {
             ball.growthX = 0;
             ball.growthY = 0;
+        }
+    }
+}
+
+//Function for the good guys to chase and receive the ball
+function goodGuys() {
+    for (let i = 0; i < team.length; i++) {
+        let player = team[i]
+        player.display();
+        player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
+
+        let d1 = dist(player.x , player.y , ball.x , ball.y)
+        if (d1 < 30 && isCatchable === true) {
+            player.speed = 0;
+            player.vy = 0;
             isCatchable = false;
+            ball.x = player.x;
+            ball.y = player.y;
+            ball.vx = player.vx;
+            ball.growthX = 0;
+            ball.growthY = 0;
+        }
+    }
+}
+
+//Function for the opponents to chase and receive the ball
+function badGuys() {
+    for (let i = 0; i < opponents.length; i++) {
+        let player = opponents[i]
+        player.display();
+        player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
+
+        let d1 = dist(player.x , player.y , ball.x , ball.y)
+        if (d1 < 30 && isCatchable === true) {
+            player.speed = 0;
+            player.vy = 0;
+            player.vx = player.vx * -1;
+            isCatchable = false;
+            ball.x = player.x;
+            ball.y = player.y;
+            ball.vx = player.vx;
+            ball.growthX = 0;
+            ball.growthY = 0;
         }
     }
 }

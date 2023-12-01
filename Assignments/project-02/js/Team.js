@@ -1,12 +1,12 @@
 class Teammate {
 
-    constructor(x, y, speed) {
+    constructor(x, y, vx, vy) {
         this.x = x;
         this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-        this.speed = speed;
-        this.acceleration = 0.1;
+        this.vx = vx;
+        this.vy = vy;
+        this.speed = 0.005;
+
         this.jerseySize = {
             w: 15,
             h: 20,
@@ -35,25 +35,31 @@ class Teammate {
         pop();
     }
 
-    chaseBall(ballEndPointX, ballEndPointY) {
-        //Making the player a bit less predictable
-        this.vx += this.speed;
-        this.vy += this.speed;
+    chaseBall(ballX, ballY, fieldX, fieldWidth, fieldHeight) {
 
-        this.speed += this.acceleration;
-        
-        //Making the player move
+        //Changing the ax and ay
+        if (ballX > this.x) {
+            this.ax = this.speed;
+        }
+        if (ballX > this.x) {
+            this.ax = -this.speed;
+        }
+        if (ballY > this.y) {
+            this.ay = this.speed;
+        }
+        if (ballY < this.y) {
+            this.ay = -this.speed;
+        }
+
+        //Making the player a bit less predictable
+        this.vx += this.ax;
+        this.vy += this.ay;
+
+        //Changing the player's x and y
         this.x += this.vx;
         this.y += this.vy;
 
-        b
-
-
+        //this.x = constrain(this.x, fieldWidth, -fieldWidth);
+        //this.y = constrain(this.y, fieldX + fieldHeight/2, fieldX - fieldHeight/2);
     }
-
-    caught() {
-
-    }
-
-    
 }
