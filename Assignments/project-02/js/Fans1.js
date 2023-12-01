@@ -1,12 +1,12 @@
 class Fan1 {
-    constructor() {
+    constructor(x, y, r, g, b) {
         this.x = x
         this.y = y
         this.size = 10
         this.fill = {
-            r: 135,
-            g: 206,
-            b: 235
+            r: r,
+            g: g,
+            b: b
         }
     }
 

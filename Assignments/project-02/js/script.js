@@ -52,11 +52,20 @@ let bleachers2 = {
 }
 let fans1 = [];
 let fans2 = [];
-
-let FanStuff = {
+let fanStuff = {
     x: 0,
     y: 0,
-    numFans: 100 
+    numFans: 300, 
+    fill1: {
+        r: 135,
+        g: 206,
+        b: 235
+    },
+    fill2: {
+        r: 255,
+        g: 114,
+        b: 118
+    }
 }
 
 //Power stuff
@@ -163,22 +172,36 @@ function setup() {
     createCanvas(700, 700); //Football field would be around 700 x 370 px
     //Also, 22 players per football team
 
+    //Generating blue team
     for (let i = 0; i < teamRules.numPlayers; i++) {
         teamRules.y = random(165, 535);
         teamRules.vx = random(-0.5, -2);
         teamRules.vy = random(-0.5, 0.5);
         team.push(new Teammate(teamRules.x, teamRules.y, teamRules.vx, teamRules.vy))
     }
+    //Generating red players
     for (let i = 0; i < opponentRules.numPlayers; i++) {
         opponentRules.y = random(165, 535);
         opponentRules.vx = random(-0.5, -2);
         opponentRules.vy = random(-0.5, 0.5);
         opponents.push(new Opponent(opponentRules.x, opponentRules.y, opponentRules.vx, opponentRules.vy))
     }
+    //Generating grass
     for (let i = 0; i < grassStuff.numGrass; i++) {
         lawn.push(new Grass(grassStuff.x, grassStuff.y));
         grassStuff.x = random(0, width);
         grassStuff.y = random(0, height);
+    }
+    //Generating red fans
+    for (let i = 0; i < fanStuff.numFans; i++) {
+        fans1.push(new Fan1(fanStuff.x, fanStuff.y, fanStuff.fill1.r, fanStuff.fill1.g, fanStuff.fill1.b));
+        fanStuff.x = random(0, 700);
+        fanStuff.y = random(0, 145);
+    }
+    for (let i = 0; i < fanStuff.numFans; i++) {
+        fans2.push(new Fan1(fanStuff.x, fanStuff.y, fanStuff.fill2.r, fanStuff.fill2.g, fanStuff.fill2.b));
+        fanStuff.x = random(0, 700);
+        fanStuff.y = random(555, 700);
     }
 }
 
@@ -221,17 +244,17 @@ function title() {
     textAlign(CENTER);
     fill(255);
     textFont(footballFont);
-    text(`TOUCHDOWN`, width/2, height/2);
+    text(`TOUCHDOWN`, width/2, height/2 + 30);
     pop();
 }
 
 //Function for the power bar
 function power() {
+    //Cosmetics
     for (let i = 0; i < lawn.length; i++) {
         let grass = lawn[i];
         grass.display();
     };
-
     push();
     fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
     rectMode(CENTER);
@@ -242,6 +265,14 @@ function power() {
     rectMode(CENTER);
     rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
     pop();
+    for (let i = 0; i < fans1.length; i++) {
+        let goodFans = fans1[i];
+        goodFans.display();
+    }    
+    for (let i = 0; i < fans2.length; i++) {
+        let badFans = fans2[i];
+        badFans.display();
+    }
 
     //Making the rectangle shrink then grow
     powerBar.height = powerBar.height + powerBar.heightChange;
@@ -297,6 +328,14 @@ function angle() {
     rectMode(CENTER);
     rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
     pop();
+    for (let i = 0; i < fans1.length; i++) {
+        let goodFans = fans1[i];
+        goodFans.display();
+    }
+    for (let i = 0; i < fans2.length; i++) {
+        let badFans = fans2[i];
+        badFans.display();
+    }
 
     //Making the angle change and bounce
     angleArrow.angle = angleArrow.angle + angleArrow.angleChange;
@@ -349,6 +388,14 @@ function chuck() {
     rectMode(CENTER);
     rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
     pop();
+    for (let i = 0; i < fans1.length; i++) {
+        let goodFans = fans1[i];
+        goodFans.display();
+    }
+    for (let i = 0; i < fans2.length; i++) {
+        let badFans = fans2[i];
+        badFans.display();
+    }
 
     //Displaying the ball
     push();
