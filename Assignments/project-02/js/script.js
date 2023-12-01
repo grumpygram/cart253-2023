@@ -7,14 +7,47 @@
 
 "use strict";
 
-let state = `powerSelector`;
+let state = `title`;
 
+//Field
 let fieldOfPlay = {
     x: 350,
     y: 350,
     size: {
         w: 650, 
         h: 370
+    }
+}
+let lawn = [];
+let grassStuff = {
+    x: 0,
+    y: 0,
+    numGrass: 600
+}
+let bleachers1 = {
+    x: 350,
+    y: 625, 
+    size: {
+        w: 700,
+        h: 140
+    },
+    fill: {
+        r: 200,
+        g: 0,
+        b: 0
+    }
+}
+let bleachers2 = {
+    x: 350,
+    y: 75, 
+    size: {
+        w: 700,
+        h: 140
+    },
+    fill: {
+        r: 200,
+        g: 0,
+        b: 0
     }
 }
 
@@ -95,7 +128,6 @@ let teamRules = {
     vy: 0,
     speed: 0
 }
-let teamCaught = false;
 
 //The other team
 let opponents = [];
@@ -107,7 +139,13 @@ let opponentRules = {
     vy: 0,
     speed: 0
 }
-let opponentCaught = false;
+
+let footballFont;
+
+function preload() {
+    footballFont = loadFont(`assets/fonts/AtlantaCollegeRegular-1Gva2.ttf`)
+
+}
 
 //Setup
 function setup() {
@@ -126,11 +164,21 @@ function setup() {
         opponentRules.vy = random(-0.5, 0.5);
         opponents.push(new Opponent(opponentRules.x, opponentRules.y, opponentRules.vx, opponentRules.vy))
     }
+    for (let i = 0; i < grassStuff.numGrass; i++) {
+        grassStuff.x = random(0, width);
+        grassStuff.y = random(0, height);
+        lawn.push(new Grass(grassStuff.x, grassStuff.y));
+    }
 }
 
 
 function draw() {
     background(0, 200, 0);
+
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    }
 
     push();
     rectMode(CENTER);
@@ -140,6 +188,9 @@ function draw() {
     rect(fieldOfPlay.x, fieldOfPlay.y, fieldOfPlay.size.w, fieldOfPlay.size.h);
     pop();
 
+    if (state === `title`) {
+        title();
+    }
     if (state === `powerSelector`) {
         power();
     }
@@ -153,8 +204,30 @@ function draw() {
     }
 }
 
+//Title screen
+function title() {
+    push();
+    textSize(115)
+    textAlign(CENTER);
+    fill(255);
+    textFont(footballFont);
+    text(`TOUCHDOWN`, width/2, height/2);
+    pop();
+}
+
 //Function for the power bar
 function power() {
+    push();
+    fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
+    rectMode(CENTER);
+    rect(bleachers1.x, bleachers1.y, bleachers1.size.w, bleachers1.size.h);
+    pop();
+    push();
+    fill(bleachers2.fill.r, bleachers2.fill.g, bleachers2.fill.b)
+    rectMode(CENTER);
+    rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
+    pop();
+
     //Making the rectangle shrink then grow
     powerBar.height = powerBar.height + powerBar.heightChange;
 
@@ -180,7 +253,7 @@ function power() {
 
     push();
     textSize(32);
-     stroke(200, 0, 0);
+    stroke(200, 0, 0);
     strokeWeight(5);
     text(round(powerValue), 600, 125);
     pop();
@@ -334,6 +407,10 @@ function badGuys() {
 
 //MousePressed
 function mousePressed() {
+    if (state === `title`) {
+        state = `powerSelector`
+        return;
+    }
     if (state === `powerSelector`) {
         checkPower()
         state = `angleSelector`;
