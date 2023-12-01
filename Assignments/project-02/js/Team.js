@@ -5,6 +5,8 @@ class Teammate {
         this.y = y;
         this.vx = vx;
         this.vy = vy;
+        this.ax;
+        this.ay;
         this.speed = 0.005;
 
         this.jerseySize = {
@@ -41,7 +43,7 @@ class Teammate {
         if (ballX > this.x) {
             this.ax = this.speed;
         }
-        if (ballX > this.x) {
+        if (ballX < this.x) {
             this.ax = -this.speed;
         }
         if (ballY > this.y) {

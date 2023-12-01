@@ -50,6 +50,14 @@ let bleachers2 = {
         b: 0
     }
 }
+let fans1 = [];
+let fans2 = [];
+
+let FanStuff = {
+    x: 0,
+    y: 0,
+    numFans: 100 
+}
 
 //Power stuff
 let powerValue;
@@ -113,10 +121,13 @@ let ball = {
     minSize: {
         w: 10, 
         h: 5
-    }
+    },
+    isCatchable: false,
+    isCaught: false
 }
+
+
 let isThrown = false;
-let isCatchable = false;
 
 //The teammates
 let team = [];
@@ -165,20 +176,15 @@ function setup() {
         opponents.push(new Opponent(opponentRules.x, opponentRules.y, opponentRules.vx, opponentRules.vy))
     }
     for (let i = 0; i < grassStuff.numGrass; i++) {
+        lawn.push(new Grass(grassStuff.x, grassStuff.y));
         grassStuff.x = random(0, width);
         grassStuff.y = random(0, height);
-        lawn.push(new Grass(grassStuff.x, grassStuff.y));
     }
 }
 
 
 function draw() {
     background(0, 200, 0);
-
-    for (let i = 0; i < lawn.length; i++) {
-        let grass = lawn[i];
-        grass.display();
-    }
 
     push();
     rectMode(CENTER);
@@ -206,6 +212,10 @@ function draw() {
 
 //Title screen
 function title() {
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    };
     push();
     textSize(115)
     textAlign(CENTER);
@@ -217,6 +227,11 @@ function title() {
 
 //Function for the power bar
 function power() {
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    };
+
     push();
     fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
     rectMode(CENTER);
@@ -268,6 +283,20 @@ function checkPower() {
 
 //Angle function
 function angle() {
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    };
+    push();
+    fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
+    rectMode(CENTER);
+    rect(bleachers1.x, bleachers1.y, bleachers1.size.w, bleachers1.size.h);
+    pop();
+    push();
+    fill(bleachers2.fill.r, bleachers2.fill.g, bleachers2.fill.b)
+    rectMode(CENTER);
+    rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
+    pop();
 
     //Making the angle change and bounce
     angleArrow.angle = angleArrow.angle + angleArrow.angleChange;
@@ -306,6 +335,20 @@ function checkAngle() {
 
 //Throwing function
 function chuck() {
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    };
+    push();
+    fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
+    rectMode(CENTER);
+    rect(bleachers1.x, bleachers1.y, bleachers1.size.w, bleachers1.size.h);
+    pop();
+    push();
+    fill(bleachers2.fill.r, bleachers2.fill.g, bleachers2.fill.b)
+    rectMode(CENTER);
+    rect(bleachers2.x, bleachers2.y, bleachers2.size.w, bleachers2.size.h);
+    pop();
 
     //Displaying the ball
     push();
@@ -349,10 +392,10 @@ function chuck() {
 
         //Defining when the ball is catchable
         if (ball.size.w <= ball.catchingSize.w && ball.size.w > ball.minSize.w) {
-            isCatchable = true;
+            ball.isCatchable = true;
         }
         else {
-            isCatchable = false;
+            ball.isCatchable = false;
         }
 
         if (ball.size.w < ball.minSize.w) {
@@ -368,17 +411,21 @@ function goodGuys() {
         let player = team[i]
         player.display();
         player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
+    }
 
+    for (let i = 0; i < team.length; i++) {
+            let player = team[i]
         let d1 = dist(player.x , player.y , ball.x , ball.y)
-        if (d1 < 30 && isCatchable === true) {
+        if (d1 < 20 && ball.isCatchable === true) {
             player.speed = 0;
             player.vy = 0;
-            isCatchable = false;
+            ball.isCatchable = false;
             ball.x = player.x;
             ball.y = player.y;
             ball.vx = player.vx;
             ball.growthX = 0;
             ball.growthY = 0;
+            return;
         }
     }
 }
@@ -389,18 +436,21 @@ function badGuys() {
         let player = opponents[i]
         player.display();
         player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
-
+    }
+    for (let i = 0; i < opponents.length; i++) {
+        let player = opponents[i]
         let d1 = dist(player.x , player.y , ball.x , ball.y)
-        if (d1 < 30 && isCatchable === true) {
+        if (d1 < 20 && ball.isCatchable === true) {
             player.speed = 0;
             player.vy = 0;
-            player.vx = player.vx * -1;
-            isCatchable = false;
+            player.vx = teamRules.vx * -1;
+            ball.isCatchable = false;
             ball.x = player.x;
             ball.y = player.y;
             ball.vx = player.vx;
             ball.growthX = 0;
             ball.growthY = 0;
+            return;
         }
     }
 }

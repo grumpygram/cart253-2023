@@ -5,6 +5,8 @@ class Opponent {
         this.y = y;
         this.vx = vx;
         this.vy = vy;
+        this.ax;
+        this.ay;
         //Speed will be random based on the script
         this.speed = 0.005;
 
@@ -42,7 +44,7 @@ class Opponent {
         if (ballX > this.x) {
             this.ax = this.speed;
         }
-        if (ballX > this.x) {
+        if (ballX < this.x) {
             this.ax = -this.speed;
         }
         if (ballY > this.y) {
