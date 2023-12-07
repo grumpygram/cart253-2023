@@ -8,7 +8,7 @@ class Opponent {
         this.ax;
         this.ay;
         //Speed will be random based on the script
-        this.speed = 0.005;
+        this.speed = 0.02;
 
         this.jerseySize = {
             w: 15,
@@ -42,10 +42,10 @@ class Opponent {
 
         //Changing the ax and ay
         if (ballX > this.x) {
-            this.ax = this.speed;
+            this.ax = this.speed * 1.5;
         }
         if (ballX < this.x) {
-            this.ax = -this.speed;
+            this.ax = -this.speed * 2;
         }
         if (ballY > this.y) {
             this.ay = this.speed;

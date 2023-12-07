@@ -4,7 +4,6 @@
  * 
  * Game where you choose the angle and power of a ball, then your players catch it and score a touchdown
  */
-
 "use strict";
 
 let state = `title`;
@@ -64,7 +63,7 @@ let lawn = [];
 let grassStuff = {
     x: 0,
     y: 0,
-    numGrass: 900
+    numGrass: 2000
 }
 let bleachers1 = {
     x: 500,
@@ -117,7 +116,7 @@ let cameraFlashes = [];
 let cameraRules = {
     x: undefined,
     y: undefined,
-    numCameras: 40
+    numCameras: 20
 }
 
 //Power stuff
@@ -165,9 +164,9 @@ let ball = {
     vy: 0,
     speed: 3,
     fill: {
-        r: 255,
-        g: 150,
-        b: 0
+        r: 155,
+        g: 85,
+        b: 35
     },
     size: {
         w: 12,
@@ -177,14 +176,15 @@ let ball = {
     growthY: 0,
     catchingSize: {
         w: 20,
-        h: 10
+        h: 10,
     },
     minSize: {
         w: 10, 
         h: 5
     },
     isCatchable: false,
-    isCaught: false
+    isCaughtGood: false,
+    isCaughtBad: false
 }
 
 let isThrown = false;
@@ -221,9 +221,11 @@ let messages = {
 function preload() {
     footballFont = loadFont(`assets/fonts/AtlantaCollegeRegular-1Gva2.ttf`)
     crowd = loadSound(`assets/sounds/crowd-noise.mp3`)
+    //crowd.rate(1);
     boos = loadSound(`assets/sounds/outrage.mp3`)
+   // boos.rate(1)
     cheers = loadSound(`assets/sounds/happiness.mp3`)
-
+   // cheers.rate(1)
 }
 
 //Setup
@@ -234,14 +236,14 @@ function setup() {
     //Generating blue team
     for (let i = 0; i < teamRules.numPlayers; i++) {
         teamRules.y = random(165, 535);
-        teamRules.vx = random(-0.5, -2);
+        teamRules.vx = random(-0.5, -2.5);
         teamRules.vy = random(-0.5, 0.5);
         team.push(new Teammate(teamRules.x, teamRules.y, teamRules.vx, teamRules.vy))
     }
     //Generating red players
     for (let i = 0; i < opponentRules.numPlayers; i++) {
         opponentRules.y = random(165, 535);
-        opponentRules.vx = random(-0.5, -2);
+        opponentRules.vx = random(-0.5, -2.5);
         opponentRules.vy = random(-0.5, 0.5);
         opponents.push(new Opponent(opponentRules.x, opponentRules.y, opponentRules.vx, opponentRules.vy))
     }
@@ -267,6 +269,7 @@ function setup() {
 
 
 function draw() {
+    frameRate(45);
     background(0, 200, 0);
 
     //Field
@@ -315,7 +318,6 @@ function draw() {
     }
     if (state === `powerSelector`) {
         power();
-        crowd.play();
     }
     if (state === `angleSelector`) {
         angle();
@@ -394,7 +396,6 @@ function power() {
 
 //Check power function
 function checkPower() {
-    powerBar.heightChange = 0;
     powerValue = round(powerValue);
     console.log(powerValue);
 }
@@ -429,7 +430,7 @@ function angle() {
     if (angleArrow.angle <= angleArrow.minAngle) {
         angleArrow.angleChange = angleArrow.angleChange * -1;
     }
-        
+    
     // Calculate the arrow endpoint
     let arrowEndX = angleArrow.centerX + angleArrow.length * cos(radians(angleArrow.angle));
     let arrowEndY = angleArrow.centerY + angleArrow.length * sin(radians(angleArrow.angle));
@@ -450,7 +451,6 @@ function angle() {
 
 //Check angle function
 function checkAngle() {
-    angleArrow.angleChange = 0;
     angleValue = angleArrow.angle;
     console.log(angleValue);
 }
@@ -484,77 +484,91 @@ function chuck() {
     pop();
 
     //Manipulating the ball
-    if (isThrown) {
-        //Giving the ball its trajectory, angle, and endpoint
-        ball.x += ball.vx
-        ball.y += ball.vy
+    if (isThrown === true) {
+        if (ball.isCaughtGood === false && ball.isCaughtBad === false){
 
-        ball.vx = ball.speed * cos(radians(angleValue));
-        ball.vy = ball.speed * sin(radians(angleValue));
+            
+            //Giving the ball its trajectory, angle, and endpoint
+            ball.x += ball.vx
+            ball.y += ball.vy
 
-        let ballEndPointX = ball.startX + powerBar.height * cos(radians(angleValue));
-        let ballEndPointY = ball.startY + powerBar.height * sin(radians(angleValue));
+            ball.vx = ball.speed * cos(radians(angleValue));
+            ball.vy = ball.speed * sin(radians(angleValue));
 
-        if (ball.x <= ballEndPointX) {
-            ball.vx = 0;
-            ball.vy = 0;
+            let ballEndPointX = ball.startX + powerBar.height * cos(radians(angleValue));
+            let ballEndPointY = ball.startY + powerBar.height * sin(radians(angleValue));
+
+            if (ball.x <= ballEndPointX) {
+                ball.vx = 0;
+                ball.vy = 0;
+            }
+
+            ball.size.w += ball.growthX;
+            ball.size.h += ball.growthY;
+
+            let d1 = dist(ball.startX, ball.startY, ballEndPointX, ballEndPointY)
+            let d2 = dist(ball.x, ball.y, ball.startX, ball.startY)
+
+            //Changing the ball's size
+            if (d2 < d1/2) {
+                ball.growthX = 0.6;
+                ball.growthY = 0.3;
+            }
+            if (d2 > d1/2) {
+                ball.growthX = -0.6;
+                ball.growthY = -0.3;
+            }
+
+            //Defining when the ball is catchable
+            if (ball.size.w <= ball.catchingSize.w && ball.size.w > ball.minSize.w && d2 > d1/2) {
+                ball.isCatchable = true;
+            }
+            else {
+                ball.isCatchable = false;
+            }
+
+            if (ball.size.w < ball.minSize.w) {
+                ball.growthX = 0;
+                ball.growthY = 0;
+                playFans(0);
+            }
+
+            //Out of bounds
+            if (ball.y > fieldOfPlay.y + fieldOfPlay.size.h/2) {
+                push();
+                const textColour = color(255, 255, 255);
+                textColour.setAlpha(128 + 128 * sin (millis()/200));
+                textSize(105)
+                textAlign(CENTER);
+                fill(textColour);
+                textFont(footballFont);
+                text(`Out Of Bounds`, width/2, height/2 + 30);
+                pop();
+            }
+            if (ball.y < fieldOfPlay.y - fieldOfPlay.size.h/2) {
+                push();
+                const textColour = color(255, 255, 255);
+                textColour.setAlpha(128 + 128 * sin (millis()/200));
+                textSize(105)
+                textAlign(CENTER);
+                fill(textColour);
+                textFont(footballFont);
+                text(`Out Of Bounds`, width/2, height/2 + 30);
+                pop();
+            }
         }
-
-        ball.size.w += ball.growthX;
-        ball.size.h += ball.growthY;
-
-        let d1 = dist(ball.startX, ball.startY, ballEndPointX, ballEndPointY)
-        let d2 = dist(ball.x, ball.y, ball.startX, ball.startY)
-
-        //Changing the ball's size
-        if (d2 < d1/2) {
-            ball.growthX = 0.6;
-            ball.growthY = 0.3;
+        if (ball.isCaughtGood){
+            starplayer.speed = 0;
+            starplayer.vy = 0;
+            ball.x=starplayer.x
+            ball.y=starplayer.y-8
         }
-        if (d2 > d1/2) {
-            ball.growthX = -0.6;
-            ball.growthY = -0.3;
+        if (ball.isCaughtBad){
+            starrival.speed = 0;
+            starrival.vy = 0;
+            ball.x=starrival.x
+            ball.y=starrival.y-8
         }
-
-        //Defining when the ball is catchable
-        if (ball.size.w <= ball.catchingSize.w && ball.size.w > ball.minSize.w) {
-            ball.isCatchable = true;
-        }
-        else {
-            ball.isCatchable = false;
-        }
-
-        if (ball.size.w < ball.minSize.w) {
-            ball.growthX = 0;
-            ball.growthY = 0;
-            crowd.stop();
-            boos.play();
-        }
-
-        //Out of bounds
-        if (ball.y > fieldOfPlay.y + fieldOfPlay.size.h/2) {
-            push();
-            const textColour = color(255, 255, 255);
-            textColour.setAlpha(128 + 128 * sin (millis()/200));
-            textSize(105)
-            textAlign(CENTER);
-            fill(textColour);
-            textFont(footballFont);
-            text(`Out Of Bounds`, width/2, height/2 + 30);
-            pop();
-        }
-        if (ball.y < fieldOfPlay.y - fieldOfPlay.size.h/2) {
-            push();
-            const textColour = color(255, 255, 255);
-            textColour.setAlpha(128 + 128 * sin (millis()/200));
-            textSize(105)
-            textAlign(CENTER);
-            fill(textColour);
-            textFont(footballFont);
-            text(`Out Of Bounds`, width/2, height/2 + 30);
-            pop();
-        }
-
         //Touchdown
         if (ball.x <= fieldOfPlay.x - fieldOfPlay.size.w/2) {
             push();
@@ -566,71 +580,124 @@ function chuck() {
             textFont(footballFont);
             text(`TOUCHDOWN!!!`, width/2, height/2 + 30);
             pop();
-            crowd.stop();
-            cheers.loop();
+            playFans(1);
+            
 
             //Cameras
             for (let i = 0; i < cameraRules.numCameras; i++) {
                 cameraFlashes.push(new Camera(cameraRules.x, cameraRules.y));
             }
-            for (let i = 0; i < cameraFlashes.length; i++) {
-                let cameras = cameraFlashes[i];
-                cameraRules.x = random(bleachers1.x - bleachers1.size.w/2 + 5, bleachers1.x + bleachers1.size.w/2 - 5);
-                cameraRules.y = random(bleachers1.y - bleachers1.size.h/2, bleachers1.y + bleachers1.size.w/2 - 5);
-                cameras.display();
-                cameraFlashes.pop();
+            for (let i = 0; i < cameraRules.numCameras; i++) {
+                let camera = cameraFlashes[i];
+                camera.x = random(bleachers1.x - bleachers1.size.w/2 + 5, bleachers1.x + bleachers1.size.w/2 - 5);
+                camera.y = random(bleachers1.y - bleachers1.size.h/2, bleachers1.y + bleachers1.size.h/2 - 5);
+                camera.display();
             }
         }
+
+        //Other team cameras
+        if (ball.x > fieldOfPlay.x + fieldOfPlay.size.w/2) {
+            for (let i = 0; i < cameraRules.numCameras; i++) {
+                cameraFlashes.push(new Camera(cameraRules.x, cameraRules.y));
+            }
+            for (let i = 0; i < cameraRules.numCameras; i++) {
+                let camera = cameraFlashes[i];
+                camera.x = random(bleachers2.x - bleachers2.size.w/2 + 5, bleachers2.x + bleachers2.size.w/2 - 5);
+                camera.y = random(bleachers2.y - bleachers2.size.h/2, bleachers2.y + bleachers2.size.h/2 - 5);
+                camera.display();
+            }
+        }  
     }
 }
 
+function playFans(state){
+    if (state==1){
+        if (cheers.isPlaying()){
+            return;
+        }else{
+            crowd.stop()
+            cheers.loop()
+        }
+        
+    }else{
+        if (boos.isPlaying()){
+            return;
+        }else{
+            crowd.stop()
+            boos.loop();
+        }
+        
+    }
+}
+let starplayer;
+let starplayer_idx=1000;
+let starplayer_vx;
+let starplayer_x;
+let starplayer_y;
 //Function for the good guys to chase and receive the ball
 function goodGuys() {
+    
     for (let i = 0; i < team.length; i++) {
         let player = team[i]
         player.display();
-        player.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);
+        if (starplayer_idx != i){
+            player.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);;
+        }else if (ball.isCaughtGood){
+            player.vx = starplayer_vx;
+            player.x  += starplayer.vx;
+            tackle();
+        }
+       
     }
 
     for (let i = 0; i < team.length; i++) {
             let player = team[i]
+            starplayer_x = player.x;
+            starplayer_y = player.y;
         let d1 = dist(player.x , player.y , ball.x , ball.y)
-        if (d1 < 20 && ball.isCatchable === true) {
-            player.speed = 0;
-            player.vy = 0;
+        if (d1 < 25 && ball.isCatchable === true && ball.isCaughtGood === false && ball.isCaughtBad === false) {
+
+            ball.isCaughtGood = true;
             ball.isCatchable = false;
-            ball.x = player.x;
-            ball.y = player.y - 8;
-            ball.vx = player.vx;
-            ball.growthX = 0;
-            ball.growthY = 0;
-            return;
+            starplayer = player
+            starplayer_idx = i;
+            starplayer_vx = player.vx
         }
     }
 }
+let starrival;
+let starrival_idx = 1000;
+let starrival_vx;
+let starrival_vy;
 
 //Function for the opponents to chase and receive the ball
 function badGuys() {
+        
     for (let i = 0; i < opponents.length; i++) {
-        let player = opponents[i]
-        player.display();
-        player.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);
+        let rival = opponents[i]
+        rival.display();
+        if (starrival_idx != i){
+            rival.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);;
+        }else if (ball.isCaughtBad){
+            rival.vx = starrival_vx;
+            rival.x  += starrival.vx;
+        }
+       
     }
+
     for (let i = 0; i < opponents.length; i++) {
-        let player = opponents[i]
-        let d1 = dist(player.x , player.y , ball.x , ball.y)
-        if (d1 < 20 && ball.isCatchable === true) {
-            player.speed = 0;
-            player.vy = 0;
-            player.vx = teamRules.vx * -1;
+            let rival = opponents[i]
+        let d1 = dist(rival.x , rival.y , ball.x , ball.y)
+        if (d1 < 25 && ball.isCatchable === true && ball.isCaughtGood === false && ball.isCaughtBad === false) {
+
+            ball.isCaughtBad = true;
             ball.isCatchable = false;
-            ball.x = player.x;
-            ball.y = player.y - 8;
-            ball.vx = player.vx;
-            ball.growthX = 0;
-            ball.growthY = 0;
-            crowd.stop();
-            boos.play();
+            starrival = rival;
+            starrival_idx = i;
+            starrival_vx = -rival.vx
+        }
+        if (ball.isCaughtBad) {
+            playFans(0)
             push();
             const textColour = color(255, 255, 255);
             textColour.setAlpha(128 + 128 * sin (millis()/200));
@@ -640,10 +707,47 @@ function badGuys() {
             textFont(footballFont);
             text(`Intercepted`, width/2, height/2 + 30);
             pop();
-            return;
         }
     }
 }
+
+let isTackled = false;
+
+function tackle() {
+    for (let i = 0; i < opponents.length; i++) {
+        for (let j = 0; j < team.length; j++) {
+        let rival = opponents[i];
+        let player = team[j];
+        let d1 = dist(rival.x, rival.y, starplayer_x, starplayer_y) 
+
+        if (d1 < 7 && isTackled === false) {
+            starplayer_vx = 0;
+            console.log("tackled");
+            isTackled = true;
+            return
+        }
+        if (isTackled) {
+            rival.vx = rival.vx/1.0002;
+            rival.vy = rival.vy/1.0002;
+            player.vx = player.vx/1.0002;
+            player.vy = player.vy/1.0002;
+            ball.y = starplayer.y - 15;
+            ball.x = starplayer.x - 15;
+            playFans(0)
+            push();
+            const textColour = color(255, 255, 255);
+            textColour.setAlpha(128 + 128 * sin (millis()/200));
+            textSize(60)
+            textAlign(CENTER);
+            fill(textColour);
+            textFont(footballFont);
+            text(`Press ENTER to continue`, width/2, height/2 + 30);
+            pop();
+        }
+    }
+}
+}
+
 
 //MousePressed
 function mousePressed() {
@@ -662,5 +766,12 @@ function mousePressed() {
         isThrown = true;
         state = `chuckin'`
         return;
+    }
+}
+
+function keyPressed() {
+    if (state === `chuckin'` && keyCode === ENTER) {
+        state = `powerSelector`
+        chuck.reset();
     }
 }

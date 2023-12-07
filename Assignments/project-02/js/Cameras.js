@@ -11,7 +11,7 @@ class Camera {
         this.size += this.growthRate;
         
         if (this.size >= this.maxSize) {
-            this.growthRate = -this.growthRate;
+            this.size -= this.growthRate;
         }
 
         push();
