@@ -37,7 +37,7 @@ class Teammate {
         pop();
     }
 
-    chaseBall(ballX, ballY, fieldX, fieldWidth, fieldHeight) {
+    chaseBall(ballX, ballY, fieldY, fieldHeight) {
 
         //Changing the ax and ay
         if (ballX > this.x) {
@@ -53,6 +53,14 @@ class Teammate {
             this.ay = -this.speed;
         }
 
+        //Making it not go out of bounds
+        if (this.y > fieldY + fieldHeight/2) {
+            this.vy = this.vy * -1
+        }
+        if (this.y < fieldY - fieldHeight/2) {
+            this.vy = this.vy * -1
+        }
+
         //Making the player a bit less predictable
         this.vx += this.ax;
         this.vy += this.ay;
@@ -60,8 +68,5 @@ class Teammate {
         //Changing the player's x and y
         this.x += this.vx;
         this.y += this.vy;
-
-        //this.x = constrain(this.x, fieldWidth, -fieldWidth);
-        //this.y = constrain(this.y, fieldX + fieldHeight/2, fieldX - fieldHeight/2);
     }
 }

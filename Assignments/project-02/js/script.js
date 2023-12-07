@@ -11,41 +11,83 @@ let state = `title`;
 
 //Field
 let fieldOfPlay = {
-    x: 350,
+    x: 500,
     y: 350,
     size: {
         w: 650, 
         h: 370
     }
 }
+let endzone1 = {
+    x: 135,
+    y: 350,
+    size: {
+        w: 80,
+        h: 370
+    },
+    fill: {
+        r: 20,
+        g: 80,
+        b: 200
+    }
+}
+let endzone2 = {
+    x: 865,
+    y: 350,
+    size: {
+        w: 80,
+        h: 370
+    },
+    fill: {
+        r: 200,
+        g: 80,
+        b: 20
+    }
+}
+let goalpost1 = {
+    x: 170,
+    y: 350,
+    size: {
+        w: 5,
+        h: 70
+    }
+}
+let goalpost2 = {
+    x: 830,
+    y: 350,
+    size: {
+        w: 5,
+        h: 70
+    }
+}
 let lawn = [];
 let grassStuff = {
     x: 0,
     y: 0,
-    numGrass: 600
+    numGrass: 900
 }
 let bleachers1 = {
-    x: 350,
+    x: 500,
     y: 625, 
     size: {
-        w: 700,
-        h: 140
+        w: 1000,
+        h: 130
     },
     fill: {
-        r: 200,
+        r: 50,
         g: 0,
         b: 0
     }
 }
 let bleachers2 = {
-    x: 350,
+    x: 500,
     y: 75, 
     size: {
-        w: 700,
-        h: 140
+        w: 1000,
+        h: 130
     },
     fill: {
-        r: 200,
+        r: 50,
         g: 0,
         b: 0
     }
@@ -55,7 +97,7 @@ let fans2 = [];
 let fanStuff = {
     x: 0,
     y: 0,
-    numFans: 300, 
+    numFans: 500, 
     fill1: {
         r: 135,
         g: 206,
@@ -67,11 +109,21 @@ let fanStuff = {
         b: 118
     }
 }
+let cheers;
+let boos;
+let crowd;
+
+let cameraFlashes = [];
+let cameraRules = {
+    x: undefined,
+    y: undefined,
+    numCameras: 40
+}
 
 //Power stuff
 let powerValue;
 let powerBar = {
-    x: 600,
+    x: 920,
     y: 150,
     width: 40,
     height: 100,
@@ -88,7 +140,7 @@ let powerBar = {
 //Angle stuff
 let angleValue;
 let angleArrow = {
-    centerX: 600,
+    centerX: 825,
     centerY: 350,
     length: 200,
     angle: 180,
@@ -105,9 +157,9 @@ let angleArrow = {
 
 //Ball stuff
 let ball = {
-    startX: 600,
+    startX: 825,
     startY: 350,
-    x: 600,
+    x: 825,
     y: 350,
     vx: 0,
     vy: 0,
@@ -135,14 +187,13 @@ let ball = {
     isCaught: false
 }
 
-
 let isThrown = false;
 
 //The teammates
 let team = [];
 let teamRules = {
     numPlayers: 11,
-    x: 520,
+    x: 800,
     y: 0,
     vx: 0,
     vy: 0,
@@ -153,7 +204,7 @@ let teamRules = {
 let opponents = [];
 let opponentRules = {
     numPlayers: 11,
-    x: 510,
+    x: 780,
     y: 0,
     vx: 0,
     vy: 0,
@@ -161,15 +212,23 @@ let opponentRules = {
 }
 
 let footballFont;
+let messages = {
+    opacity: 255,
+    fadeRate: 5
+}
 
+//Preload
 function preload() {
     footballFont = loadFont(`assets/fonts/AtlantaCollegeRegular-1Gva2.ttf`)
+    crowd = loadSound(`assets/sounds/crowd-noise.mp3`)
+    boos = loadSound(`assets/sounds/outrage.mp3`)
+    cheers = loadSound(`assets/sounds/happiness.mp3`)
 
 }
 
 //Setup
 function setup() {
-    createCanvas(700, 700); //Football field would be around 700 x 370 px
+    createCanvas(1000, 700); //Football field would be around 700 x 370 px
     //Also, 22 players per football team
 
     //Generating blue team
@@ -195,20 +254,22 @@ function setup() {
     //Generating red fans
     for (let i = 0; i < fanStuff.numFans; i++) {
         fans1.push(new Fan1(fanStuff.x, fanStuff.y, fanStuff.fill1.r, fanStuff.fill1.g, fanStuff.fill1.b));
-        fanStuff.x = random(0, 700);
-        fanStuff.y = random(0, 145);
+        fanStuff.x = random(0, 1000);
+        fanStuff.y = random(bleachers1.y + bleachers1.size.h/2, bleachers1.y - bleachers1.size.h/2);
     }
     for (let i = 0; i < fanStuff.numFans; i++) {
         fans2.push(new Fan1(fanStuff.x, fanStuff.y, fanStuff.fill2.r, fanStuff.fill2.g, fanStuff.fill2.b));
-        fanStuff.x = random(0, 700);
-        fanStuff.y = random(555, 700);
+        fanStuff.x = random(0, 1000);
+        fanStuff.y = random(bleachers2.y + bleachers2.size.h/2, bleachers2.y - bleachers2.size.h/2);
     }
+    userStartAudio();
 }
 
 
 function draw() {
     background(0, 200, 0);
 
+    //Field
     push();
     rectMode(CENTER);
     noFill();
@@ -216,29 +277,58 @@ function draw() {
     strokeWeight(2);
     rect(fieldOfPlay.x, fieldOfPlay.y, fieldOfPlay.size.w, fieldOfPlay.size.h);
     pop();
+    for (let i = 0; i < lawn.length; i++) {
+        let grass = lawn[i];
+        grass.display();
+    };
+    //Endzone 1
+    push();
+    fill(endzone1.fill.r, endzone1.fill.g, endzone1.fill.b);
+    rectMode(CENTER);
+    stroke(255);
+    strokeWeight(2);
+    rect(endzone1.x, endzone1.y, endzone1.size.w, endzone1.size.h);
+    pop();
+    //Endzone 2
+    push();
+    fill(endzone2.fill.r, endzone2.fill.g, endzone2.fill.b);
+    rectMode(CENTER);
+    stroke(255);
+    strokeWeight(2);
+    rect(endzone2.x, endzone2.y, endzone2.size.w, endzone2.size.h);
+    pop();
+    //Goalposts
+    push();
+    stroke(0);
+    fill(255);
+    rectMode(CENTER);
+    rect(goalpost1.x, goalpost1.y, goalpost1.size.w, goalpost1.size.h);
+    ellipse(goalpost1.x, goalpost1.y + goalpost1.size.h/2 - 3, goalpost1.size.w + 2);
+    ellipse(goalpost1.x, goalpost1.y - goalpost1.size.h/2 + 3, goalpost1.size.w + 2);
+    rect(goalpost2.x, goalpost2.y, goalpost2.size.w, goalpost2.size.h);
+    ellipse(goalpost2.x, goalpost2.y + goalpost2.size.h/2 - 3, goalpost2.size.w + 2);
+    ellipse(goalpost2.x, goalpost2.y - goalpost2.size.h/2 + 3, goalpost2.size.w + 2);
+    pop();
 
     if (state === `title`) {
         title();
     }
     if (state === `powerSelector`) {
         power();
+        crowd.play();
     }
     if (state === `angleSelector`) {
         angle();
     }
     if (state === `chuckin'`) {
-        chuck();
         goodGuys();
         badGuys();
+        chuck();
     }
 }
 
 //Title screen
 function title() {
-    for (let i = 0; i < lawn.length; i++) {
-        let grass = lawn[i];
-        grass.display();
-    };
     push();
     textSize(115)
     textAlign(CENTER);
@@ -251,10 +341,6 @@ function title() {
 //Function for the power bar
 function power() {
     //Cosmetics
-    for (let i = 0; i < lawn.length; i++) {
-        let grass = lawn[i];
-        grass.display();
-    };
     push();
     fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
     rectMode(CENTER);
@@ -299,9 +385,10 @@ function power() {
 
     push();
     textSize(32);
-    stroke(200, 0, 0);
+    fill(255, 255, 0);
+    stroke(0);
     strokeWeight(5);
-    text(round(powerValue), 600, 125);
+    text(round(powerValue), 850, 350);
     pop();
 }
 
@@ -314,10 +401,6 @@ function checkPower() {
 
 //Angle function
 function angle() {
-    for (let i = 0; i < lawn.length; i++) {
-        let grass = lawn[i];
-        grass.display();
-    };
     push();
     fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
     rectMode(CENTER);
@@ -374,10 +457,6 @@ function checkAngle() {
 
 //Throwing function
 function chuck() {
-    for (let i = 0; i < lawn.length; i++) {
-        let grass = lawn[i];
-        grass.display();
-    };
     push();
     fill(bleachers1.fill.r, bleachers1.fill.g, bleachers1.fill.b)
     rectMode(CENTER);
@@ -448,6 +527,59 @@ function chuck() {
         if (ball.size.w < ball.minSize.w) {
             ball.growthX = 0;
             ball.growthY = 0;
+            crowd.stop();
+            boos.play();
+        }
+
+        //Out of bounds
+        if (ball.y > fieldOfPlay.y + fieldOfPlay.size.h/2) {
+            push();
+            const textColour = color(255, 255, 255);
+            textColour.setAlpha(128 + 128 * sin (millis()/200));
+            textSize(105)
+            textAlign(CENTER);
+            fill(textColour);
+            textFont(footballFont);
+            text(`Out Of Bounds`, width/2, height/2 + 30);
+            pop();
+        }
+        if (ball.y < fieldOfPlay.y - fieldOfPlay.size.h/2) {
+            push();
+            const textColour = color(255, 255, 255);
+            textColour.setAlpha(128 + 128 * sin (millis()/200));
+            textSize(105)
+            textAlign(CENTER);
+            fill(textColour);
+            textFont(footballFont);
+            text(`Out Of Bounds`, width/2, height/2 + 30);
+            pop();
+        }
+
+        //Touchdown
+        if (ball.x <= fieldOfPlay.x - fieldOfPlay.size.w/2) {
+            push();
+            const textColour = color(255, 255, 255);
+            textColour.setAlpha(128 + 128 * sin (millis()/400));
+            textSize(105)
+            textAlign(CENTER);
+            fill(textColour);
+            textFont(footballFont);
+            text(`TOUCHDOWN!!!`, width/2, height/2 + 30);
+            pop();
+            crowd.stop();
+            cheers.loop();
+
+            //Cameras
+            for (let i = 0; i < cameraRules.numCameras; i++) {
+                cameraFlashes.push(new Camera(cameraRules.x, cameraRules.y));
+            }
+            for (let i = 0; i < cameraFlashes.length; i++) {
+                let cameras = cameraFlashes[i];
+                cameraRules.x = random(bleachers1.x - bleachers1.size.w/2 + 5, bleachers1.x + bleachers1.size.w/2 - 5);
+                cameraRules.y = random(bleachers1.y - bleachers1.size.h/2, bleachers1.y + bleachers1.size.w/2 - 5);
+                cameras.display();
+                cameraFlashes.pop();
+            }
         }
     }
 }
@@ -457,7 +589,7 @@ function goodGuys() {
     for (let i = 0; i < team.length; i++) {
         let player = team[i]
         player.display();
-        player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
+        player.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);
     }
 
     for (let i = 0; i < team.length; i++) {
@@ -468,7 +600,7 @@ function goodGuys() {
             player.vy = 0;
             ball.isCatchable = false;
             ball.x = player.x;
-            ball.y = player.y;
+            ball.y = player.y - 8;
             ball.vx = player.vx;
             ball.growthX = 0;
             ball.growthY = 0;
@@ -482,7 +614,7 @@ function badGuys() {
     for (let i = 0; i < opponents.length; i++) {
         let player = opponents[i]
         player.display();
-        player.chaseBall(ball.x, ball.y, fieldOfPlay.x, fieldOfPlay.size.w, fieldOfPlay.size.h);
+        player.chaseBall(ball.x, ball.y, fieldOfPlay.y, fieldOfPlay.size.h);
     }
     for (let i = 0; i < opponents.length; i++) {
         let player = opponents[i]
@@ -493,10 +625,21 @@ function badGuys() {
             player.vx = teamRules.vx * -1;
             ball.isCatchable = false;
             ball.x = player.x;
-            ball.y = player.y;
+            ball.y = player.y - 8;
             ball.vx = player.vx;
             ball.growthX = 0;
             ball.growthY = 0;
+            crowd.stop();
+            boos.play();
+            push();
+            const textColour = color(255, 255, 255);
+            textColour.setAlpha(128 + 128 * sin (millis()/200));
+            textSize(105)
+            textAlign(CENTER);
+            fill(textColour);
+            textFont(footballFont);
+            text(`Intercepted`, width/2, height/2 + 30);
+            pop();
             return;
         }
     }
@@ -506,6 +649,7 @@ function badGuys() {
 function mousePressed() {
     if (state === `title`) {
         state = `powerSelector`
+        crowd.loop();
         return;
     }
     if (state === `powerSelector`) {
